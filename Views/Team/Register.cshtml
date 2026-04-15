@@ -1,0 +1,70 @@
+@model IdeasCreativas.Models.ViewModels.TeamRegistrationViewModel
+
+@{
+    ViewData["Title"] = "Registro de Equipo";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="text-center mb-4">Registro de Equipo</h2>
+        
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form asp-action="Register" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">Nombre del Equipo</label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">Contraseña</label>
+                        <input asp-for="Password" type="password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ConfirmPassword" class="form-label">Confirmar Contraseña</label>
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MemberCount" class="form-label">Número de Integrantes (Máximo 2)</label>
+                        <input asp-for="MemberCount" type="number" min="1" max="2" class="form-control" id="memberCountInput" onchange="toggleMember2()" />
+                        <span asp-validation-for="MemberCount" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Member1" class="form-label">Nombre del Integrante 1</label>
+                        <input asp-for="Member1" class="form-control" />
+                        <span asp-validation-for="Member1" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3" id="member2Div" style="display: @(Model?.MemberCount == 2 ? "block" : "none");">
+                        <label asp-for="Member2" class="form-label">Nombre del Integrante 2</label>
+                        <input asp-for="Member2" class="form-control" />
+                        <span asp-validation-for="Member2" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function toggleMember2() {
+            var val = document.getElementById('memberCountInput').value;
+            document.getElementById('member2Div').style.display = (val == 2) ? 'block' : 'none';
+        }
+        document.addEventListener("DOMContentLoaded", toggleMember2);
+    </script>
+}

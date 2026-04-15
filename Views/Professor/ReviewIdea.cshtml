@@ -1,0 +1,77 @@
+@model IdeasCreativas.Models.Idea
+
+@{
+    ViewData["Title"] = "Revisar Idea";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="mb-4">Validar Idea</h2>
+        
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <strong>Equipo:</strong> @Model.Team?.Name
+                <div class="text-muted small mt-1">
+                    Integrantes: @Model.Team?.Member1 
+                    @(string.IsNullOrEmpty(Model.Team?.Member2) ? "" : " y " + Model.Team?.Member2)
+                </div>
+                <span class="float-end text-muted small mt-n4 position-absolute top-0 end-0 p-3">@Model.PostDate.ToString("dd/MM/yyyy HH:mm")</span>
+            </div>
+            <div class="card-body">
+                <p class="card-text fs-5">@Model.Text</p>
+            </div>
+        </div>
+
+        <form asp-action="ReviewIdea" method="post">
+            <input type="hidden" asp-for="Id" />
+            
+            <div class="card mb-4 border-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Criterios de Evaluación</h5>
+                    
+                    <div class="form-check form-switch mb-3 mt-3">
+                        <input class="form-check-input" type="checkbox" id="IsCreative" name="IsCreative" value="true" @(Model.IsCreative ? "checked" : "")>
+                        <label class="form-check-label" for="IsCreative">Es creativa</label>
+                    </div>
+                    
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="IsWellFormulated" name="IsWellFormulated" value="true" @(Model.IsWellFormulated ? "checked" : "")>
+                        <label class="form-check-label" for="IsWellFormulated">Está bien planteada</label>
+                    </div>
+                    
+                    
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="IsApproved" name="IsApproved" value="true" @(Model.IsApproved ? "checked" : "")>
+                        <label class="form-check-label" for="IsApproved">Aprobada</label>
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="IsRejected" name="IsRejected" value="true" @(Model.IsRejected ? "checked" : "") onchange="toggleRejectionReason()">
+                        <label class="form-check-label text-danger" for="IsRejected">No Aprobar (Rechazada)</label>
+                    </div>
+
+                    <div class="mb-3" id="rejectionReasonDiv" style="display: @(Model.IsRejected ? "block" : "none");">
+                        <label for="RejectionReason" class="form-label text-danger">Motivo del rechazo</label>
+                        <textarea class="form-control" id="RejectionReason" name="RejectionReason" rows="3">@Model.RejectionReason</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3 fw-bold"></div>
+
+            <div class="d-flex justify-content-between">
+                <a asp-action="ValidateList" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-success">Guardar Evaluación</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleRejectionReason() {
+            var isRejected = document.getElementById('IsRejected').checked;
+            document.getElementById('rejectionReasonDiv').style.display = isRejected ? 'block' : 'none';
+        }
+    </script>
+}

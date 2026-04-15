@@ -1,0 +1,81 @@
+@using Microsoft.AspNetCore.Http
+@model IEnumerable<IdeasCreativas.Models.Idea>
+@{
+    ViewData["Title"] = "Ideas Propuestas";
+    var isAdmin = Context.Session.GetString("IsAdmin") == "true";
+}
+
+<div class="text-center mb-5">
+    <h1 class="display-4 text-primary">Portal de Ideas Creativas</h1>
+    <p class="lead">Explora las ideas postuladas por los equipos. @if(isAdmin) { <span><strong>(Modo Profesor Activo)</strong></span> }</p>
+</div>
+
+<div class="row">
+    @if (Model == null || !Model.Any())
+    {
+        <div class="col-12 text-center text-muted mt-5">
+            <p class="fs-4">Aún no hay ideas postuladas.</p>
+            <a asp-controller="Idea" asp-action="Postulate" class="btn btn-primary mt-3">¡Postula la primera idea!</a>
+        </div>
+    }
+    else
+    {
+        foreach (var item in Model)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm @(item.IsApproved ? "border-success" : "")">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <strong class="text-dark">@item.Team?.Name</strong>
+                        <span class="text-muted small">@item.PostDate.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">@item.Text</p>
+                        @if (item.IsRejected && !string.IsNullOrEmpty(item.RejectionReason))
+                        {
+                            <div class="alert alert-danger mt-3 mb-0" role="alert">
+                                <strong>Motivo de rechazo:</strong> @item.RejectionReason
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer bg-white">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                @if (item.IsApproved)
+                                {
+                                    <span class="badge bg-success">Aprobada</span>
+                                }
+                                else if (item.IsRejected)
+                                {
+                                    <span class="badge bg-danger">Rechazada</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                }
+                            </div>
+                            <div>
+                                @if (item.IsCreative)
+                                {
+                                    <span class="badge bg-info text-dark" title="Es Creativa">✨ Creativa</span>
+                                }
+                                @if (item.IsWellFormulated)
+                                {
+                                    <span class="badge bg-primary" title="Bien Planteada">📝 Bien Planteada</span>
+                                }
+                            </div>
+                        </div>
+
+                        @if (isAdmin)
+                        {
+                            <div class="d-grid gap-2 mt-3">
+                                <a asp-controller="Professor" asp-action="ReviewIdea" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">
+                                    Revisar Idea
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

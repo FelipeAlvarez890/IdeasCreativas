@@ -1,0 +1,87 @@
+@model IEnumerable<IdeasCreativas.Models.Team>
+
+@{
+    ViewData["Title"] = "Panel de Evaluación";
+}
+
+<h2 class="mb-4">Panel de Equipos e Ideas</h2>
+
+@if(!Model.Any())
+{
+    <div class="alert alert-info">Aún no hay equipos registrados.</div>
+}
+
+@foreach (var team in Model)
+{
+    var approvedCount = team.Ideas.Count(i => i.IsApproved);
+    var rejectedCount = team.Ideas.Count(i => i.IsRejected);
+    var pendingCount = team.Ideas.Count(i => !i.IsApproved && !i.IsRejected);
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-people-fill me-2"></i> @team.Name
+            </h5>
+            <div>
+                <span class="badge bg-success me-1">Aprobadas: @approvedCount/2</span>
+                <span class="badge bg-danger me-1">Rechazadas: @rejectedCount</span>
+                <span class="badge bg-warning text-dark">Pendientes: @pendingCount</span>
+            </div>
+        </div>
+        <div class="card-body bg-light">
+            <p class="small text-muted mb-3">
+                <strong>Integrantes:</strong> @team.Member1 @(string.IsNullOrEmpty(team.Member2) ? "" : " | " + team.Member2)
+            </p>
+
+            @if(team.Ideas.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered bg-white align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Texto de la Idea</th>
+                                <th>Estado</th>
+                                <th style="width: 120px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var idea in team.Ideas.OrderByDescending(i => i.PostDate))
+                            {
+                                <tr>
+                                    <td class="text-nowrap">@idea.PostDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        <div class="text-truncate" style="max-width: 400px;" title="@idea.Text">
+                                            @idea.Text
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (idea.IsApproved)
+                                        {
+                                            <span class="badge bg-success">Aprobada</span>
+                                        }
+                                        else if (idea.IsRejected)
+                                        {
+                                            <span class="badge bg-danger">Rechazada</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">Pendiente</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a asp-action="ReviewIdea" asp-route-id="@idea.Id" class="btn btn-sm btn-outline-primary">Evaluar</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="mb-0 text-muted fst-italic">Este equipo aún no ha postulado ideas.</p>
+            }
+        </div>
+    </div>
+}

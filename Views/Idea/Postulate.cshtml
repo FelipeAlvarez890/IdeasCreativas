@@ -1,0 +1,45 @@
+@model IdeasCreativas.Models.ViewModels.IdeaPostViewModel
+
+@{
+    ViewData["Title"] = "Postular Idea";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="text-center mb-4">Postular Idea Creativa</h2>
+        
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form asp-action="Postulate" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="TeamName" class="form-label">Nombre del Equipo</label>
+                        <input asp-for="TeamName" class="form-control" />
+                        <span asp-validation-for="TeamName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TeamPassword" class="form-label">Contraseña del Equipo</label>
+                        <input asp-for="TeamPassword" type="password" class="form-control" />
+                        <span asp-validation-for="TeamPassword" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="IdeaText" class="form-label">Texto de la Idea (Máximo 512 caracteres)</label>
+                        <textarea asp-for="IdeaText" class="form-control" rows="5" maxlength="512"></textarea>
+                        <span asp-validation-for="IdeaText" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">postular idea</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
