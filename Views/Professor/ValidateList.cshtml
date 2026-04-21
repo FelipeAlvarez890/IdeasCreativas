@@ -70,7 +70,7 @@
                                         }
                                     </td>
                                     <td>
-                                        <a asp-action="ReviewIdea" asp-route-id="@idea.Id" class="btn btn-sm btn-outline-primary">Evaluar</a>
+                                        <a asp-action="ReviewIdea" asp-route-id="@idea.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-sm btn-outline-primary">Evaluar</a>
                                     </td>
                                 </tr>
                             }

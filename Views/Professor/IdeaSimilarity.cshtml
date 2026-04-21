@@ -1,0 +1,104 @@
+@model IEnumerable<ComparadorIdeas.ResultadoSimilitud>
+@{
+    ViewData["Title"] = "Similitud de Ideas";
+    var originalIdeas = ViewBag.OriginalIdeas as List<IdeasCreativas.Models.Idea>;
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Similitud de Ideas</h2>
+    <p class="text-muted">A continuación se muestran los pares de ideas postuladas, ordenadas desde las más similares a las menos similares.</p>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">Aún no hay suficientes ideas postuladas para realizar comparaciones.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered bg-white shadow-sm align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width: 10%;">Similitud</th>
+                        <th style="width: 45%;">Idea 1</th>
+                        <th style="width: 45%;">Idea 2</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var similitud in Model)
+                    {
+                        var pct = similitud.Similitud * 100;
+                        string badgeClass = pct >= 50 ? "bg-danger" : (pct >= 20 ? "bg-warning text-dark" : "bg-success");
+                        var idea1Ref = originalIdeas?.FirstOrDefault(x => x.Id == similitud.Idea1.Id);
+                        var idea2Ref = originalIdeas?.FirstOrDefault(x => x.Id == similitud.Idea2.Id);
+
+                        <tr>
+                            <td class="text-center">
+                                <span class="badge @badgeClass fs-6">
+                                    @pct.ToString("0.0")%
+                                </span>
+                            </td>
+                            <td>
+                                <a asp-action="ReviewIdea" asp-route-id="@similitud.Idea1.Id" asp-route-returnUrl="@Context.Request.Path" class="text-decoration-none fw-semibold">
+                                    @similitud.Idea1.Text
+                                </a>
+                                @if (idea1Ref != null)
+                                {
+                                    <div class="mt-2 d-flex flex-wrap align-items-center gap-2">
+                                        @if (idea1Ref.IsApproved)
+                                        {
+                                            <span class="badge bg-success">Aprobada</span>
+                                        }
+                                        else if (idea1Ref.IsRejected)
+                                        {
+                                            <span class="badge bg-danger">Rechazada</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">Pendiente</span>
+                                        }
+                                        
+                                        @if (idea1Ref.Team != null)
+                                        {
+                                            <small class="text-muted fst-italic"><i class="bi bi-people-fill"></i> @idea1Ref.Team.Name</small>
+                                        }
+                                        <small class="text-muted"><i class="bi bi-clock"></i> @idea1Ref.PostDate.ToString("dd/MM/yyyy HH:mm")</small>
+                                        <a class="btn btn-sm btn-outline-primary py-0 ms-auto" asp-action="ReviewIdea" asp-route-id="@idea1Ref.Id" asp-route-returnUrl="@Context.Request.Path">Evaluar</a>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="ReviewIdea" asp-route-id="@similitud.Idea2.Id" asp-route-returnUrl="@Context.Request.Path" class="text-decoration-none fw-semibold">
+                                    @similitud.Idea2.Text
+                                </a>
+                                @if (idea2Ref != null)
+                                {
+                                    <div class="mt-2 d-flex flex-wrap align-items-center gap-2">
+                                        @if (idea2Ref.IsApproved)
+                                        {
+                                            <span class="badge bg-success">Aprobada</span>
+                                        }
+                                        else if (idea2Ref.IsRejected)
+                                        {
+                                            <span class="badge bg-danger">Rechazada</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">Pendiente</span>
+                                        }
+                                        
+                                        @if (idea2Ref.Team != null)
+                                        {
+                                            <small class="text-muted fst-italic"><i class="bi bi-people-fill"></i> @idea2Ref.Team.Name</small>
+                                        }
+                                        <small class="text-muted"><i class="bi bi-clock"></i> @idea2Ref.PostDate.ToString("dd/MM/yyyy HH:mm")</small>
+                                        <a class="btn btn-sm btn-outline-primary py-0 ms-auto" asp-action="ReviewIdea" asp-route-id="@idea2Ref.Id" asp-route-returnUrl="@Context.Request.Path">Evaluar</a>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

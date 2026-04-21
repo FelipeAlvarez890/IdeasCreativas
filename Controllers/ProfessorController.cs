@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using ComparadorIdeas;
 
 namespace IdeasCreativas.Controllers
 {
@@ -19,23 +20,29 @@ namespace IdeasCreativas.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string? returnUrl = null)
         {
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
         [HttpPost]
-        public IActionResult Login(ProfessorLoginViewModel model)
+        public IActionResult Login(ProfessorLoginViewModel model, string? returnUrl = null)
         {
             if (ModelState.IsValid)
             {
                 if (model.User == "profe" && model.Password == "123")
                 {
                     HttpContext.Session.SetString("IsAdmin", "true");
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    {
+                        return Redirect(returnUrl);
+                    }
                     return RedirectToAction("ValidateList");
                 }
                 ModelState.AddModelError(string.Empty, "Credenciales incorrectas");
             }
+            ViewBag.ReturnUrl = returnUrl;
             return View(model);
         }
 
@@ -50,7 +57,7 @@ namespace IdeasCreativas.Controllers
         {
             if (HttpContext.Session.GetString("IsAdmin") != "true")
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", new { returnUrl = Request.Path + Request.QueryString });
             }
 
             var teams = await _context.Teams
@@ -62,11 +69,11 @@ namespace IdeasCreativas.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ReviewIdea(int id)
+        public async Task<IActionResult> ReviewIdea(int id, string? returnUrl = null)
         {
             if (HttpContext.Session.GetString("IsAdmin") != "true")
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", new { returnUrl = Request.Path + Request.QueryString });
             }
 
             var idea = await _context.Ideas.Include(i => i.Team).FirstOrDefaultAsync(i => i.Id == id);
@@ -75,15 +82,16 @@ namespace IdeasCreativas.Controllers
                 return NotFound();
             }
 
+            ViewBag.ReturnUrl = returnUrl;
             return View(idea);
         }
 
         [HttpPost]
-        public async Task<IActionResult> ReviewIdea(int id, bool IsCreative, bool IsWellFormulated, bool IsApproved, bool IsRejected, string? RejectionReason)
+        public async Task<IActionResult> ReviewIdea(int id, bool IsCreative, bool IsWellFormulated, bool IsApproved, bool IsRejected, string? RejectionReason, string? returnUrl = null)
         {
             if (HttpContext.Session.GetString("IsAdmin") != "true")
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", new { returnUrl = Request.Path + Request.QueryString });
             }
 
             var idea = await _context.Ideas.Include(i => i.Team).FirstOrDefaultAsync(i => i.Id == id);
@@ -152,7 +160,30 @@ namespace IdeasCreativas.Controllers
                 }
             }
 
-            return RedirectToAction("Index", "Home");
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            return RedirectToAction("ValidateList");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> IdeaSimilarity()
+        {
+            if (HttpContext.Session.GetString("IsAdmin") != "true")
+            {
+                return RedirectToAction("Login", new { returnUrl = Request.Path + Request.QueryString });
+            }
+
+            var dbIdeas = await _context.Ideas.Include(i => i.Team).ToListAsync();
+            var algorithmIdeas = dbIdeas.Select(i => new ComparadorIdeas.Idea(i.Id, i.Text)).ToList();
+
+            var similitudes = ComparadorIdeas.AlgoritmoSimilitud.CompararIdeas(algorithmIdeas);
+
+            // Fetch teams to show in UI
+            ViewBag.OriginalIdeas = dbIdeas;
+
+            return View(similitudes);
         }
     }
 }
