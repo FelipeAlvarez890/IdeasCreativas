@@ -24,6 +24,29 @@ public class HomeController : Controller
             .Include(i => i.Team)
             .OrderByDescending(i => i.PostDate)
             .ToListAsync();
+
+        var algorithmIdeas = ideas.Select(i => new ComparadorIdeas.Idea(i.Id, i.Text)).ToList();
+        var similitudes = ComparadorIdeas.AlgoritmoSimilitud.CompararIdeas(algorithmIdeas);
+        
+        var ideasConSimilitud = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<IdeasCreativas.Models.Idea>>();
+        foreach(var sim in similitudes)
+        {
+            if (sim.Similitud >= 0.2) // Consideramos "algo parecida" si es >= 20%
+            {
+                var idea1Original = ideas.First(i => i.Id == sim.Idea1.Id);
+                var idea2Original = ideas.First(i => i.Id == sim.Idea2.Id);
+
+                if (!ideasConSimilitud.ContainsKey(sim.Idea1.Id))
+                    ideasConSimilitud[sim.Idea1.Id] = new System.Collections.Generic.List<IdeasCreativas.Models.Idea>();
+                ideasConSimilitud[sim.Idea1.Id].Add(idea2Original);
+
+                if (!ideasConSimilitud.ContainsKey(sim.Idea2.Id))
+                    ideasConSimilitud[sim.Idea2.Id] = new System.Collections.Generic.List<IdeasCreativas.Models.Idea>();
+                ideasConSimilitud[sim.Idea2.Id].Add(idea1Original);
+            }
+        }
+        ViewBag.IdeasConSimilitud = ideasConSimilitud;
+
         return View(ideas);
     }
 

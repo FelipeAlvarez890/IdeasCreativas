@@ -38,8 +38,8 @@
                                 </span>
                             </td>
                             <td>
-                                <a asp-action="ReviewIdea" asp-route-id="@similitud.Idea1.Id" asp-route-returnUrl="@Context.Request.Path" class="text-decoration-none fw-semibold">
-                                    @similitud.Idea1.Text
+                                <a asp-action="ReviewIdea" asp-route-id="@similitud.Idea1.Id" asp-route-returnUrl="@Context.Request.Path" class="text-decoration-none fw-semibold" title="@similitud.Idea1.Text">
+                                    @(similitud.Idea1.Text.Length > 60 ? similitud.Idea1.Text.Substring(0, 60) + "..." : similitud.Idea1.Text)
                                 </a>
                                 @if (idea1Ref != null)
                                 {
@@ -67,8 +67,8 @@
                                 }
                             </td>
                             <td>
-                                <a asp-action="ReviewIdea" asp-route-id="@similitud.Idea2.Id" asp-route-returnUrl="@Context.Request.Path" class="text-decoration-none fw-semibold">
-                                    @similitud.Idea2.Text
+                                <a asp-action="ReviewIdea" asp-route-id="@similitud.Idea2.Id" asp-route-returnUrl="@Context.Request.Path" class="text-decoration-none fw-semibold" title="@similitud.Idea2.Text">
+                                    @(similitud.Idea2.Text.Length > 60 ? similitud.Idea2.Text.Substring(0, 60) + "..." : similitud.Idea2.Text)
                                 </a>
                                 @if (idea2Ref != null)
                                 {

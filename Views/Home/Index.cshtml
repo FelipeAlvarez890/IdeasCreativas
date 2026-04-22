@@ -68,7 +68,20 @@
                         @if (isAdmin)
                         {
                             <div class="d-grid gap-2 mt-3">
-                                <a asp-controller="Professor" asp-action="ReviewIdea" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">
+                                @if (ViewBag.IdeasConSimilitud != null && ((System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<IdeasCreativas.Models.Idea>>)ViewBag.IdeasConSimilitud).ContainsKey(item.Id))
+                                {
+                                    var similarIdeas = ((System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<IdeasCreativas.Models.Idea>>)ViewBag.IdeasConSimilitud)[item.Id];
+                                    <div class="alert alert-warning py-1 px-2 mb-2 text-start" role="alert" style="font-size: 0.85rem;">
+                                        <div><i class="bi bi-exclamation-triangle"></i> Tiene <strong>@similarIdeas.Count</strong> idea(s) similar(es):</div>
+                                        <ul class="mb-0 ps-3 mt-1">
+                                            @foreach(var si in similarIdeas)
+                                            {
+                                                <li>Equipo @(si.Team?.Name ?? "Desconocido") <a asp-controller="Professor" asp-action="ReviewIdea" asp-route-id="@si.Id" asp-route-returnUrl="@Context.Request.Path" class="text-decoration-none fw-bold">(Ver)</a></li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                                <a asp-controller="Professor" asp-action="ReviewIdea" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-primary btn-sm">
                                     Revisar Idea
                                 </a>
                             </div>
